@@ -4,10 +4,16 @@ import os
 import glob
 import matplotlib.pyplot as plt
 import csv
+import easyocr
 
+# === OCR Initialization ===
+reader = easyocr.Reader(['en'], gpu=False)
+
+# === Load Image ===
 def load_local_image(path):
     return cv2.imread(path)
 
+# === Detect Black Circular Marks ===
 def detect_black_circular_patches(img, min_radius=18, max_radius=40, fill_ratio=0.8):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     _, binary = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
@@ -37,9 +43,10 @@ def detect_black_circular_patches(img, min_radius=18, max_radius=40, fill_ratio=
             if total_pixels == 0:
                 continue
             if black_pixels / total_pixels >= fill_ratio:
-                positions.append((int(x), int(y)))  # Convert to Python int
+                positions.append((int(x), int(y)))
     return positions, binary
 
+# === Draw Circles on Binary Image ===
 def draw_circles_on_binary(binary_img, positions, radius=10):
     img_copy = cv2.cvtColor(binary_img, cv2.COLOR_GRAY2BGR)
     for (x, y) in positions:
@@ -47,6 +54,7 @@ def draw_circles_on_binary(binary_img, positions, radius=10):
         cv2.circle(img_copy, (x, y), 2, (0, 0, 255), -1)
     return img_copy
 
+# === Display Image with Matplotlib ===
 def show_image_with_matplotlib(image, title="Image"):
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     plt.figure(figsize=(8, 6))
@@ -55,6 +63,31 @@ def show_image_with_matplotlib(image, title="Image"):
     plt.axis('off')
     plt.show()
 
+# === Detect Left Margin using OCR ===
+def find_left_text_margin_with_easyocr(img):
+    h, w = img.shape[:2]
+    img = img[0:int(h * 0.2), 0:int(w * 0.2)]
+
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    results = reader.readtext(gray)
+
+    x_coords = []
+    for (bbox, text, confidence) in results:
+        if confidence > 0.3:
+            (top_left, _, _, _) = bbox
+            x_coords.append(int(top_left[0]))
+
+    if not x_coords:
+        return None
+    return min(x_coords)
+
+# === Draw Vertical Line at x ===
+def draw_vertical_line(img, x, color=(255, 0, 255), thickness=2):
+    img_copy = img.copy()
+    cv2.line(img_copy, (x, 0), (x, img_copy.shape[0]), color, thickness)
+    return img_copy
+
+# === Process All Images in Directory ===
 def process_directory(directory_path):
     image_extensions = ['*.png', '*.jpg', '*.jpeg', '*.bmp']
     image_files = []
@@ -68,7 +101,14 @@ def process_directory(directory_path):
         positions, binary = detect_black_circular_patches(image)
         count = len(positions)
         binary_with_circles = draw_circles_on_binary(binary, positions)
-        mark_data.append((os.path.basename(image_path), count, binary_with_circles, positions))
+
+        left_margin_x = find_left_text_margin_with_easyocr(image)
+        if left_margin_x:
+            marked_img_with_margin = draw_vertical_line(binary_with_circles, left_margin_x)
+        else:
+            marked_img_with_margin = binary_with_circles
+
+        mark_data.append((os.path.basename(image_path), count, positions, left_margin_x, marked_img_with_margin, image))
 
     return mark_data
 
@@ -76,26 +116,27 @@ def process_directory(directory_path):
 directory_path = "../process-data/sheets_images/normalization_posttest_lab_renamed"
 output_dir = "./marked_binary"
 os.makedirs(output_dir, exist_ok=True)
-
 csv_path = os.path.join(output_dir, "mark_positions.csv")
 
 mark_data = process_directory(directory_path)
 
-# Save all marked binary images and CSV data
+# === Save CSV and Display Images ===
 with open(csv_path, mode='w', newline='') as file:
     writer = csv.writer(file)
-    writer.writerow(["image", "marked", "count"])
-    for filename, count, binary_with_circles, positions in mark_data:
-        # Save image
+    writer.writerow(["image", "marked", "count", "left_margin_x"])
+
+    for filename, count, positions, left_margin_x, marked_img_with_margin, image in mark_data:
+        # Save the image with circles and left margin line
         output_path = os.path.join(output_dir, filename)
-        # cv2.imwrite(output_path, binary_with_circles)
+        cv2.imwrite(output_path, marked_img_with_margin)
 
-        # Write to CSV with clean coordinates
-        writer.writerow([filename, str(positions), count])
+        # Save to CSV with left margin x value
+        writer.writerow([filename, str(positions), count, left_margin_x if left_margin_x is not None else "N/A"])
 
-# Show images where number of marks is NOT 6
-print("\nImages where number of marks is not 6:")
-for filename, count, binary_with_circles, _ in mark_data:
-    if count != 6:
-        print(f"{filename} -> {count} marks")
-        # show_image_with_matplotlib(binary_with_circles, title=f"{filename} ({count} marks)")
+        # Display if count not 6
+        # if count != 6:
+        #     print(f"{filename} -> {count} marks")
+        #     if left_margin_x:
+        #         show_image_with_matplotlib(marked_img_with_margin, title=f"{filename} | Left margin: x={left_margin_x}")
+        #     else:
+        #         show_image_with_matplotlib(marked_img_with_margin, title=f"{filename} | No margin detected")
