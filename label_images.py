@@ -53,7 +53,7 @@ def getLabeledImages(src_path, out_path):
 
     def find_left_text_margin_with_easyocr(img):
         h, w = img.shape[:2]
-        img = img[0:int(h * 0.2), 0:int(w * 0.2)]
+        img = img[0:int(h * 0.2), 0:int(w * 0.4)]
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         results = reader.readtext(gray)
         x_coords = [int(bbox[0][0]) for (bbox, text, confidence) in results if confidence > 0.3]
@@ -69,15 +69,18 @@ def getLabeledImages(src_path, out_path):
             line = gray[y, start_x:end_x]
             black_pixels = np.where(line < 50)[0]
             if len(black_pixels) > pixel_threshold:
-                return int(start_x + black_pixels[0] - 20)
+                return (int(start_x + black_pixels[0] - 20),y)
         return None
 
-    def draw_two_margins(img, red_x=None, green_x=None):
+    def draw_three_margins(img, red_x=None, green_x=None,green_y=None):
         img_copy = img.copy()
         if red_x:
             cv2.line(img_copy, (red_x, 0), (red_x, img_copy.shape[0]), (0, 0, 255), 2)
         if green_x:
             cv2.line(img_copy, (green_x, 0), (green_x, img_copy.shape[0]), (0, 255, 0), 2)
+        if green_y:
+            cv2.line(img_copy, (0, green_y), (img_copy.shape[1],green_y ), (0, 255, 0), 2)
+        
         return img_copy
 
     def process_directory(directory_path, output_dir, csv_writer):
@@ -98,8 +101,10 @@ def getLabeledImages(src_path, out_path):
             green_margin_x = None
 
             if left_margin_x is not None:
-                green_margin_x = find_second_margin_green(image, left_margin_x)
-                marked_img = draw_two_margins(binary_with_circles, red_x=left_margin_x, green_x=green_margin_x)
+                green_margins = find_second_margin_green(image, left_margin_x)
+                green_margin_x=green_margins[0]
+                green_margin_y=green_margins[1]
+                marked_img = draw_three_margins(binary_with_circles, red_x=left_margin_x, green_x=green_margin_x,green_y=green_margin_y)
             else:
                 marked_img = binary_with_circles
 
@@ -110,13 +115,14 @@ def getLabeledImages(src_path, out_path):
                 count,
                 left_margin_x if left_margin_x is not None else "N/A",
                 green_margin_x if green_margin_x is not None else "N/A",
+                green_margin_y if green_margin_y is not None else "N/A",
                 marked_img
             ))
 
             if i % 10 == 0 or i == len(image_files):
                 # Write to CSV and save images
-                for filename, pos_str, count, red_x, green_x, img in batch:
-                    csv_writer.writerow([filename, pos_str, count, red_x, green_x])
+                for filename, pos_str, count, red_x, green_x,green_y, img in batch:
+                    csv_writer.writerow([filename, pos_str, count, red_x, green_x,green_y])
                     cv2.imwrite(os.path.join(output_dir, filename), img)
                 batch.clear()  # Clear memory
 
@@ -126,5 +132,5 @@ def getLabeledImages(src_path, out_path):
 
     with open(csv_path, mode='w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["image", "marked", "count", "left_margin_x", "green_margin_x"])
+        writer.writerow(["image", "marked", "count", "left_margin_x", "green_margin_x","green_margin_y"])
         process_directory(src_path, out_path, writer)
