@@ -6,7 +6,7 @@ from ast import literal_eval
 
 
 
-def generateResults(SESSION,test_type):
+def generateResults():
     # Function to read the first CSV (answers from images)
     def readSheetsData(filename):
         with open(filename, mode='r') as file:
@@ -50,17 +50,16 @@ def generateResults(SESSION,test_type):
 
             test_type=row[0].split("_")[1]
             session=row[0].split("_")[0]
-
+            print(session,test_type)
         
             if(set_number=="") :
                 continue
-            if(session=="normalization"):
-                break
+            print(questions_data[0][0][-1])
 
             # Filter data for this set in the second CSV
-            set_questions = [q for q in questions_data if (int(q[0][-1]) == int(set_number) and test_type in q[0] and session in q[0])]
+            set_questions = [q for q in questions_data if (int(q[0][-1]) == int(set_number) and test_type in q[0].lower() and session in q[0].lower())]
             
-          
+            print(set_questions)
             
           
             
@@ -69,6 +68,7 @@ def generateResults(SESSION,test_type):
             
             correct_flags = [(user_answers[i] == correct_answers[i]) for i in range(5)]
             print("==============")
+            
             print(correct_answers)
             print(row[2])
             print(correct_flags)
@@ -103,7 +103,4 @@ def generateResults(SESSION,test_type):
 
     print(f"Comparison results have been written to {output_csv_file}.")
 
-generateResults("er_pretest_lab","pretest")
-generateResults("er_posttest_lab","posttest")
-generateResults("er_pretest_watrin","pretest")
-generateResults("er_posttest_watrin","posttest")
+generateResults()
