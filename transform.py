@@ -3,7 +3,7 @@ import ast
 import numpy as np
 
 # Load the CSV file
-def getOption(green_intersection,marked_positions,red_margin_x):
+def getOption(image,green_intersection,marked_positions,red_margin_x):
     options=["a","b","c","d"]
 
     grid_height=220
@@ -22,8 +22,9 @@ def getOption(green_intersection,marked_positions,red_margin_x):
         grid="left"
         if(marked_position[1]<250):
             grid="set"
-            rel_marked_position_x=marked_position[0]-red_margin_x-150
-            marked_col=rel_marked_position_x/(245/5)
+            text_width=146 if "pretest" in image else 180
+            rel_marked_position_x=marked_position[0]-red_margin_x-text_width
+            marked_col=rel_marked_position_x/(246/5)
             result["set"]=int(marked_col+1)
             continue
             
