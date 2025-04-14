@@ -87,11 +87,12 @@ er_posttest_watrin_840.png,4,False,True,False,False,False
 er_posttest_watrin_843.png,4,False,False,True,True,False
 er_posttest_watrin_903.png,1,True,True,False,False,False
 er_posttest_watrin_904.png,2,True,False,True,False,True
+er_posttest_watrin_905.png,4,False,True,True,True,False
 er_posttest_watrin_909.png,4,True,True,True,True,False
 er_posttest_watrin_910.png,3,True,False,False,True,True
 er_posttest_watrin_912.png,3,True,False,True,True,True
 er_posttest_watrin_919.png,5,True,True,True,False,False
-er_posttest_watrin_923.png,4,False,False,False,True,False
+er_posttest_watrin_923.png,2,True,False,True,False,True
 er_posttest_watrin_926.png,1,True,True,True,False,True
 er_posttest_watrin_927.png,3,False,True,True,True,True
 er_posttest_watrin_929.png,4,False,True,False,True,False
@@ -197,7 +198,7 @@ er_pretest_watrin_909.png,1,False,False,True,True,False
 er_pretest_watrin_910.png,5,False,True,False,False,True
 er_pretest_watrin_912.png,3,False,False,True,False,False
 er_pretest_watrin_919.png,5,False,True,True,False,True
-er_pretest_watrin_923.png,4,False,True,False,True,False
+er_pretest_watrin_923.png,3,False,True,True,False,False
 er_pretest_watrin_926.png,3,True,False,True,True,False
 er_pretest_watrin_927.png,2,False,True,False,False,False
 er_pretest_watrin_929.png,1,True,False,True,True,True
@@ -284,7 +285,7 @@ normalization_posttest_watrin_815.png,1,True,False,True,False,False
 normalization_posttest_watrin_818.png,4,False,False,False,False,True
 normalization_posttest_watrin_819.png,1,False,False,True,False,False
 normalization_posttest_watrin_823.png,1,False,False,True,True,True
-normalization_posttest_watrin_825.png,4,False,True,True,False,False
+normalization_posttest_watrin_825.png,4,False,True,True,False,True
 normalization_posttest_watrin_829.png,4,False,False,False,False,False
 normalization_posttest_watrin_832.png,3,True,True,False,True,True
 normalization_posttest_watrin_833.png,4,False,True,True,False,False
@@ -389,8 +390,8 @@ normalization_pretest_watrin_815.png,1,True,True,False,True,False
 normalization_pretest_watrin_818.png,3,True,False,False,False,True
 normalization_pretest_watrin_819.png,2,True,True,False,False,False
 normalization_pretest_watrin_823.png,4,True,True,False,False,False
-normalization_pretest_watrin_825.png,4,False,True,False,False,False
-normalization_pretest_watrin_829.png,2,False,False,False,False,False
+normalization_pretest_watrin_825.png,4,False,True,False,True,False
+normalization_pretest_watrin_829.png,2,False,True,False,False,False
 normalization_pretest_watrin_831.png,3,False,True,False,False,True
 normalization_pretest_watrin_832.png,3,True,True,True,False,True
 normalization_pretest_watrin_833.png,2,True,False,False,False,False
