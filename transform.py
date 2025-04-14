@@ -22,8 +22,8 @@ def getOption(green_intersection,marked_positions,red_margin_x):
         grid="left"
         if(marked_position[1]<250):
             grid="set"
-            rel_marked_position_x=marked_position[0]-red_margin_x-170
-            marked_col=rel_marked_position_x/(264/5)
+            rel_marked_position_x=marked_position[0]-red_margin_x-150
+            marked_col=rel_marked_position_x/(245/5)
             result["set"]=int(marked_col+1)
             continue
             
